@@ -10,28 +10,12 @@ class LoginModelForm(forms.ModelForm):
         }
 
 class ContactModelForm(forms.ModelForm):
-    class Meta: 
+    class Meta:
         model = Contact
         fields = ['first_name', 'last_name', 'email', 'phone']
         widgets = {
-            'password': forms.PasswordInput(),  # Use PasswordInput widget for password fields
+            'first_name': forms.TextInput(attrs={'placeholder': 'First Name'}),
+            'last_name': forms.TextInput(attrs={'placeholder': 'Last Name'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'Email'}),
+            'phone': forms.TextInput(attrs={'placeholder': 'Phone'}),
         }
-
-class SignupForm(forms.ModelForm):
-    class Meta:
-        model = Login
-        fields = ['email', 'password', 'phone']
-
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get("password")
-        
-        return cleaned_data
-    
-    def save(self, commit=True):
-        # Override the save method to handle user creation
-        user = super().save(commit=False)
-        user.password = self.cleaned_data["password"]  # Assign the cleaned password
-        if commit:
-            user.save()
-        return user
