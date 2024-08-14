@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header-content">
+        <div class="logo">
+            <img src="{% static 'images/medibot_logo.jpg' %}" alt="Medi Ai Logo">
+        </div>
+        <ul class="nav-links">
+            <li><a href="http://127.0.0.1:8000/">Home</a></li>
+            <li><a href="#chatbot-section">Chat</a></li>
+            <li><a href="#about-section">About Us</a></li>
+            <li><a href="http://127.0.0.1:8000/contact_us/">Contact Us</a></li>
+            <li><a href="http://127.0.0.1:8000/login/">Login</a></li>
+        </ul>
+    </div>
+
+    <!-- Contact Form Container -->
+    <div class="login-container">
+        <img src="{% static 'images/medibot_logo.jpg' %}" alt="Medi Ai Logo" class="logo" style="height: 60px;">
+        <h1>Contact Us</h1>
+        <form id="contactForm" method="post" action="">
+            {% csrf_token %}
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" name="first_name" required>
+
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" name="last_name" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" required>
+
+            <button type="submit">Submit</button>
+            <div id="formFeedback" class="feedback"></div>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-content">
+        <p>&copy; 2024 Medi Ai</p>
+    </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting the traditional way
+
+            const formData = new FormData(this);
+            const jsonData = JSON.stringify(Object.fromEntries(formData.entries()));
+
+            fetch('/contact/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')  // CSRF token if using @csrf_exempt
+                },
+                body: jsonData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const feedback = document.getElementById('formFeedback');
+                if (data.status === 'success') {
+                    feedback.textContent = data.message;
+                    feedback.className = 'success';
+                    document.getElementById('contactForm').reset();  // Reset form on success
+                } else {
+                    feedback.textContent = data.message;
+                    feedback.className = 'error';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        // Function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+
+</body>
+</html>

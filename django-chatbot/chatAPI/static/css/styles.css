@@ -1,0 +1,329 @@
+/* General styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #0e1a2b;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Header */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: right;
+    padding: 20px;
+    background-color: #0e1a2b;
+    position: fixed;
+    top: 0;
+    width: 98%;
+    z-index: 800;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.logo img {
+    max-width: 100px;
+    height: auto;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li {
+    margin: 0 20px;
+}
+
+.nav-links li a {
+    text-decoration: none;
+    color: #00d0ff;
+    font-weight: bold;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.nav-links li a:hover {
+    color: #00ff8f;
+    transform: scale(1.1);
+}
+
+/* Main Section */
+.main-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #00d0ff, #00ff8f);
+    text-align: center;
+    margin-top: 80px; /* Adjust for fixed header */
+}
+
+.intro h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.intro p {
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+}
+
+.main-btn {
+    background-color: #00ff8f;
+    color: #0e1a2b;
+    padding: 15px 30px;
+    text-decoration: none;
+    border-radius: 30px;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.main-btn:hover {
+    background-color: #00d0ff;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Chatbot Section */
+.chatbot-section {
+    padding: 60px 20px;
+    background-color: #0e1a2b;
+}
+
+.chatbot-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #16222b;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.title-bar .status {
+    font-size: 1rem;
+    color: #00ff8f;
+    margin-left: 10px;
+}
+
+.chat-messages-container {
+    background-color: #1b2a3a;
+    border-radius: 10px;
+    height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.chat-messages .user-message,
+.chat-messages .bot-message {
+    max-width: 60%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    margin: 10px 0;
+    font-size: 14px;
+    position: relative;
+    animation: fadeIn 0.5s ease-in-out, slideIn 0.5s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.chat-messages .user-message {
+    background-color: #00d0ff;
+    color: #0e1a2b;
+    text-align: right;
+    margin-left: auto;
+}
+
+.chat-messages .bot-message {
+    background-color: #00ff8f;
+    color: #0e1a2b;
+    text-align: left;
+    margin-right: auto;
+}
+
+/* Chat Bubble Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(50px);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Input Container */
+.input-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.user-input {
+    flex-grow: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    margin-right: 10px;
+    font-size: 1rem;
+    background-color: #1b2a3a;
+    color: #ffffff;
+}
+
+.send-btn {
+    background-color: #00ff8f;
+    border: none;
+    border-radius: 50%;
+    padding: 10px;
+    cursor: pointer;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.send-btn img {
+    height: 16px;
+    width: 16px;
+}
+
+.send-btn:hover {
+    background-color: #00d0ff;
+    transform: scale(1.1);
+}
+
+/* FAQ Section */
+.faq-section {
+    padding: 60px 20px;
+    background-color: #0e1a2b;
+}
+
+.faq-container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.faq-question {
+    background-color: #16222b;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.faq-question:hover {
+    background-color: #1b2a3a;
+}
+
+.faq-answer {
+    display: none;
+    padding: 15px;
+    margin-top: -10px;
+    background-color: #1b2a3a;
+    border-radius: 0 0 10px 10px;
+}
+
+/* FAQ Section Animations */
+.faq-answer.active {
+    display: block;
+    animation: fadeIn 0.5s ease-in-out, slideIn 0.5s ease-in-out;
+}
+
+/* Login Container */
+.login-container {
+    max-width: 400px;
+    margin: 150px auto;
+    padding: 20px;
+    background-color: #16222b;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.login-container h1 {
+    margin-bottom: 20px;
+    color: #00ff8f;
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"] {
+    width: 90%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1b2a3a;
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+.login-container button {
+    padding: 15px 30px;
+    background-color: #00ff8f;
+    color: #0e1a2b;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.login-container button:hover {
+    background-color: #00d0ff;
+    transform: translateY(-3px) scale(1.02);
+}
+
+/* Footer */
+.footer-content {
+    text-align: center;
+    padding: 10px;
+    background-color: #0e1a2b;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: 10px;
+    }
+
+    .nav-links li {
+        margin: 10px 0;
+    }
+
+    .login-container {
+        margin: 100px auto;
+    }
+
+    .logo img {
+        max-width: 80px;
+    }
+
+    .main-section {
+        margin-top: 120px;
+    }
+}
