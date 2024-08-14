@@ -5,14 +5,14 @@ from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login
 from .models import Login
-from .forms import LoginModelForm, ContactModelForm
+from .forms import LoginModelForm, ContactModelForm, SignupForm
 import pandas as pd
 import json
 import random
 import tensorflow as tf
 from django.views.generic import FormView
 from django.urls import reverse_lazy
-from .forms import SignupForm
+from django.http import HttpResponse
 
 # Load your dataset from a JSON file
 df = pd.read_json('mydb.json')
@@ -140,7 +140,7 @@ class SignupView(FormView):
         # Check if the user already exists
         if Login.objects.filter(email=email).exists():
             messages.error(self.request, 'A user with this email already exists.')
-            return self.form_invalid(form)  # Re-render the form with an error message
+            return self.form_invalid(form)
         else:
             # If the user doesn't exist, create a new user
             form.save()  # Assuming your form's save method handles creating the user
@@ -150,7 +150,6 @@ class SignupView(FormView):
 
     def form_invalid(self, form):
         # Handle form validation errors
-        messages.error(self.request, 'Form validation failed. Please correct the errors below.')
         return self.render_to_response(self.get_context_data(form=form))
 
 @csrf_exempt
