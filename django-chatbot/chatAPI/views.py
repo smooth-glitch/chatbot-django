@@ -135,15 +135,13 @@ def contact_view(request):
     if request.method == 'POST':
         form = ContactModelForm(request.POST)
         if form.is_valid():
-            form.save()  # Save the contact to the database
+            form.save()
             messages.success(request, 'Contact saved successfully!')
-            return redirect('contact')  # Redirect to prevent resubmission
-        else:
-            messages.error(request, 'Form validation failed')
-            return render(request, 'contact.html', {'form': form})
+            return redirect('contact')  # Prevent form resubmission
     else:
         form = ContactModelForm()
-    return render(request, 'contact.html', {'form': form})  # Renders the form for a GET request
+
+    return render(request, 'contact.html', {'form': form})
     
 def index(request):
     return render(request, 'index.html')
