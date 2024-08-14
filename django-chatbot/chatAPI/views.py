@@ -10,6 +10,9 @@ import pandas as pd
 import json
 import random
 import tensorflow as tf
+from django.views.generic import FormView
+from django.urls import reverse_lazy
+from .forms import SignupForm
 
 # Load your dataset from a JSON file
 df = pd.read_json('mydb.json')
@@ -39,14 +42,6 @@ def predict(request):
 
             # Get the authenticated user or set to None
             user = request.user if request.user.is_authenticated else None
-
-            # Save the message, response, user, and timestamp to the database
-            MessageLog.objects.create(
-                user=user,
-                message=input_text,
-                response=response,  # Save the chosen response
-                timestamp=timezone.now()
-            )
 
             # Return the response
             return JsonResponse({'response': response}, status=200)
@@ -111,24 +106,52 @@ def find_response(user_input):
         return random.choice(matched_responses)
     return "Sorry, I can't help with that. Can you try asking something else?"
 
-def login_view(request):
-    if request.method == 'POST':
-        form = LoginModelForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
+class LoginView(FormView):
+    template_name = 'login.html'
+    form_class = LoginModelForm
+    success_url = reverse_lazy('home')  # Redirect to home page on successful login
+
+    def form_valid(self, form):
+        email = form.cleaned_data['email']
+        password = form.cleaned_data['password']
+
+        try:
+            # Check if the email and password match an entry in the Login model
+            user_login = Login.objects.get(email=email, password=password)
+            self.request.session['user_id'] = user_login.id  # Store user ID in session
+            return super().form_valid(form)  # Redirect to the success_url (home page)
+        except Login.DoesNotExist:
+            # If credentials are invalid, add an error message
+            messages.error(self.request, "Invalid username or password.")
+            return redirect('login')  # Redirect back to the login page to prevent resubmission
+
+    def form_invalid(self, form):
+        # Handle the case where the form is invalid
+        return super().form_invalid(form)
+    
+class SignupView(FormView):
+    template_name = 'signup.html'
+    form_class = SignupForm
+    success_url = reverse_lazy('login')  # Redirect to the home page after successful signup
+
+    def form_valid(self, form):
+        email = form.cleaned_data['email']
+        
+        # Check if the user already exists
+        if Login.objects.filter(email=email).exists():
+            messages.error(self.request, 'A user with this email already exists.')
+            return self.form_invalid(form)  # Re-render the form with an error message
+        else:
+            # If the user doesn't exist, create a new user
+            form.save()  # Assuming your form's save method handles creating the user
+            messages.success(self.request, 'Signup successful! Please log in.')
+            return redirect('login')
             
-            # Check if the username and password match any entry in the Login model
-            try:
-                user_login = Login.objects.get(email=email, password=password)
-                request.session['user_id'] = user_login.id  # Store user ID in session
-                return redirect('http://127.0.0.1:8000/')  # Redirect to home page
-            except Login.DoesNotExist:
-                messages.error(request, "Invalid username or password.")
-                return redirect('login')  # Redirect to prevent resubmission
-    else:
-        form = LoginModelForm()
-    return render(request, 'login.html', {'form': form})
+
+    def form_invalid(self, form):
+        # Handle form validation errors
+        messages.error(self.request, 'Form validation failed. Please correct the errors below.')
+        return self.render_to_response(self.get_context_data(form=form))
 
 @csrf_exempt
 def contact_view(request):

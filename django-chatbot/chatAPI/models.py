@@ -16,6 +16,7 @@ from django.http import JsonResponse
 class Login(models.Model):
     email = models.EmailField(max_length = 100, default='test123@gmail.com')
     password = models.CharField(max_length=250)
+    phone = models.IntegerField(null = True, blank = True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

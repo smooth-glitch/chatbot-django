@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medi Ai - SIGN-UP</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header class="header-content">
+        <div class="logo">
+            <img src="{% static 'images/medibot_logo.jpg' %}" alt="Medi Ai Logo">
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#">About Us</a></li>
+                <li><a href="http://127.0.0.1:8000/contact_us">Contact Us</a></li>
+                <li><a href="http://127.0.0.1:8000/login">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="main-section">
+        <div class="signup-container">
+            <h1>SIGN UP</h1>
+            <form method="POST" action="{% url 'signup' %}">
+                {% csrf_token %}
+                
+                <input type="text" name="email" placeholder="email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <input type="password" name="phone" placeholder="phone" required>
+                <button type="submit">SignUp</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer-content">
+        © 2024 Medi Ai.
+    </footer>
+
+</body>
+</html>
