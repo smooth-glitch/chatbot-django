@@ -6,12 +6,11 @@
     <title>Medi Ai - Login</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-
 </head>
-<body >
+<body>
     <header class="header-content">
         <div class="logo">
-            <a href="http://127.0.0.1:8000/login/">
+            <a href="{% url 'home' %}">
                 <img src="{% static 'images/medibot_logo.png' %}" alt="Medi Ai Logo">
             </a>
         </div>
@@ -40,9 +39,12 @@
                 
                 <input type="text" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Password" required>
-                <button type="Button" onclick="window.location.href='{% url 'home' %}'">Login</button>
+                <!-- Ensure the button is a submit button to trigger form submission -->
+                <button type="submit">Login</button>
                 <button type="button" onclick="window.location.href='{% url 'signup' %}'">Sign up</button>
                 <button type="button" onclick="window.location.href='{% url 'forgot-password' %}'">Forgot Password?</button>
+
+
             </form>
         </div>
     </div>
