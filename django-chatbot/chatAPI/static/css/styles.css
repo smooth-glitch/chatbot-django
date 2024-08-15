@@ -80,11 +80,6 @@ body {
     color: #000000;
 }
 
-.nav-links li a span {
-    position: relative;
-    z-index: 1;
-}
-
 /* Main Section */
 .main-section {
     display: flex;
@@ -133,7 +128,7 @@ body {
 .chatbot-container {
     max-width: 80%;
     margin: 0 auto;
-    background: rgba(22, 34, 43, 0.85);
+    background: linear-gradient(135deg, #0d1f3b, #1a478c);
     border-radius: 20px;
     padding: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -198,7 +193,7 @@ body {
     margin: 10px 0;
     font-size: 14px;
     position: relative;
-    animation: bounceIn 1s ease-in-out, slideInFromLeft 1s ease-in-out;
+    animation: fadeIn 0.7s ease-in-out, slideIn 0.7s ease-in-out, pulse 1.5s infinite;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -232,6 +227,15 @@ body {
     }
     to {
         transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
     }
 }
 
@@ -275,6 +279,98 @@ body {
     transform: scale(1.1);
 }
 
+/* General styles for the page */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #0e1a2b;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Gradient Background for the container */
+.gradient-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+    background: linear-gradient(135deg, #a8e063, #56ab2f); /* Light green gradient */
+    background-size: 400% 400%;
+    animation: gradientAnimation 10s ease infinite;
+    border-radius: 20px;
+    margin: 50px auto;
+    width: 80%;
+    max-width: 1400px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Animation for gradient background */
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Video Container */
+.video-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 100px;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+}
+
+/* Video Bubble */
+.bubble {
+    background: linear-gradient(135deg, #f7f7f7, #e7e7e7);
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    backdrop-filter: blur(10px);
+    transform: scale(1);
+}
+
+.bubble:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.4);
+}
+
+.bubble video {
+    border-radius: 15px;
+    width: 100%;
+    height: auto;
+}
+
+.bubble h3 {
+    margin-top: 15px;
+    font-size: 1.4rem;
+    color: #0e1a2b;
+}
+
+.bubble p {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #555;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .video-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .bubble {
+        width: 90%;
+    }
+}
 /* FAQ Section */
 .faq-section {
     padding: 60px 20px;
@@ -316,18 +412,18 @@ body {
 
 /* Login Container */
 .login-container {
-    max-width: 400px;
-    margin: 150px auto;
-    padding: 20px;
-    background-color: #16222b;
-    border-radius: 10px;
+    max-width: 450px;
+    margin: 200px auto;
+    padding: 35px;
+    background: linear-gradient(135deg, #0d1f3b, #1a478c); /* Navy blue gradient */
+    border-radius: 20px;
     text-align: center;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
 .login-container h1 {
     margin-bottom: 20px;
-    color: #00ff8f;
+    color: #f8f0f0;
 }
 
 .login-container input[type="text"],
@@ -337,8 +433,8 @@ body {
     margin-bottom: 20px;
     border: none;
     border-radius: 5px;
-    background-color: #1b2a3a;
-    color: #ffffff;
+    background-color: #a0a3a7;
+    color: #070000;
     font-size: 1rem;
 }
 
@@ -358,26 +454,85 @@ body {
     transform: translateY(-3px) scale(1.02);
 }
 
+/* Signup Container */
+.signup-container {
+    max-width: 500px;
+    margin: 150px auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #0d1f3b, #1a478c); /* Navy blue gradient */
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.signup-container h1 {
+    margin-bottom: 20px;
+    color: #f8f0f0;
+}
+
+.signup-container input[type="text"],
+.signup-container input[type="password"],
+.signup-container input[type="email"] {
+    width: 90%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #a0a3a7;
+    color: #070000;
+    font-size: 1rem;
+}
+
+.signup-container button {
+    padding: 15px 30px;
+    background-color: #ffffff;
+    color: #000000;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
+}
+
+.signup-container button:hover {
+    background-color: #000000;
+    color: #ffffff;
+    transform: translateY(-3px) scale(1.02);
+}
+
+/* Contact Page Background */
+body.contact-page {
+    background: linear-gradient(135deg, #00ff8f, #00d0ff); /* Green gradient */
+    background-size: 400% 400%;
+    animation: gradientAnimation 10s ease infinite;
+}
+
+/* Gradient Animation */
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 /* Contact Form Container */
 .contact-container {
     max-width: 500px;
     margin: 150px auto;
-    padding: 20px;
-    background-color: #16222b;
-    border-radius: 10px;
+    padding: 45px;
+    background: linear-gradient(135deg, #0d1f3b, #1a478c); /* Navy blue gradient */
+    border-radius: 15px;
     text-align: center;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
 .contact-container h2 {
     margin-bottom: 20px;
-    color: #00ff8f;
+    color: #ffffff;
 }
 
 .contact-container label {
     display: block;
-    margin-bottom: 10px;
-    color: #00ff8f;
+    margin-bottom: 15px;
+    color: #ffffff;
     text-align: left;
 }
 
@@ -385,12 +540,12 @@ body {
 .contact-container input[type="email"],
 .contact-container input[type="tel"] {
     width: 95%;
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: 20px;
+    margin-bottom: 30px;
     border: none;
-    border-radius: 5px;
-    background-color: #1b2a3a;
-    color: #ffffff;
+    border-radius: 15px;
+    background-color: #a0a3a7;
+    color: #180a0a;
     font-size: 1rem;
 }
 
@@ -409,6 +564,7 @@ body {
     color: #ffffff;
     transform: translateY(-3px) scale(1.02);
 }
+
 
 /* Inline CSS for message styling */
 .messages {
@@ -438,6 +594,7 @@ body {
     color: #721c24;
     border-color: #f5c6cb;
 }
+
 
 /* Footer */
 .footer-content {
@@ -511,3 +668,55 @@ body {
         margin-bottom: 10px;
     }
 }
+
+/* Forgot Password Container */
+.forgot-password-container {
+    max-width: 500px;
+    margin: 200px auto;
+    padding: 25px;
+    background: linear-gradient(135deg, #0d1f3b, #1a478c); /* Navy blue gradient */
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.forgot-password-container h2 {
+    margin-bottom: 25px;
+    color: #f8f0f0;
+}
+
+.forgot-password-container input[type="email"] {
+    width: 90%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 10px;
+    background-color: #ffffff;
+    color: #1a1a1a; /* Changed to dark color for better contrast */
+    font-size: 1rem;
+}
+
+.forgot-password-container button {
+    padding: 15px 30px;
+    background-color: #ffffff;
+    color: #000000;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
+}
+
+.forgot-password-container button:hover {
+    background-color: #000000;
+    color: #ffffff;
+    transform: translateY(-3px) scale(1.02);
+}
+
+/* Message alert styles */
+.messages .alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
