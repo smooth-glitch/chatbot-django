@@ -184,8 +184,8 @@ class ForgotPasswordView(FormView):
     def form_valid(self, form):
         email = form.cleaned_data['email']
         
-        if Login.objects.filter(email=email).exists():
-            user = Login.objects.get(email=email)
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
 

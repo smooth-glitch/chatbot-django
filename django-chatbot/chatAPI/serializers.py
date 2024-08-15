@@ -21,3 +21,6 @@ class SignupSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
+
+class HomePageSerializer(serializers.Serializer):
+        fields = '__all__'
