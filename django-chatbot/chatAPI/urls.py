@@ -10,4 +10,6 @@ urlpatterns = [
     path('contact_us/', views.contact_view, name='contact'),
     path('about/', views.about, name='about'),
     path('signup/', views.SignupView.as_view(), name='signup'),
+    path('forgot-password/', views.ForgotPasswordView.as_view(), name='forgot-password'),
+    path('reset/<uidb64>/<token>/', views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 ]
