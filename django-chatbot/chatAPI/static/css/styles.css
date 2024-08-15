@@ -198,7 +198,7 @@ body {
     margin: 10px 0;
     font-size: 14px;
     position: relative;
-    animation: fadeIn 0.5s ease-in-out, slideIn 0.5s ease-in-out;
+    animation: bounceIn 1s ease-in-out, slideInFromLeft 1s ease-in-out;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
