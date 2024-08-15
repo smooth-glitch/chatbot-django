@@ -40,8 +40,9 @@
                 
                 <input type="text" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Password" required>
-                <button type="submit">Login</button>
+                <button type="Button" onclick="window.location.href='{% url 'home' %}'">Login</button>
                 <button type="button" onclick="window.location.href='{% url 'signup' %}'">Sign up</button>
+                <button type="button" onclick="window.location.href='{% url 'forgot-password' %}'">Forgot Password?</button>
             </form>
         </div>
     </div>
