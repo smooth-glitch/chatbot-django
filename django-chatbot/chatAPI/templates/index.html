@@ -7,7 +7,28 @@
     <div class="intro">
         <h1>Welcome to Medi Ai</h1>
         <p>Your personal mental health assistant</p>
-        <a href="{% url 'chatbot' %}" class="main-btn">Try Demo</a> <!-- Updated link to navigate to chatbot page -->
+        <a href="#chatbot-section" class="main-btn">Start Chat</a>
+    </div>
+</div>
+
+<!-- Chatbot Section -->
+<div class="chatbot-section" id="chatbot-section">
+    <div class="chatbot-container">
+        <div class="title-bar">
+            <a href="http://127.0.0.1:8000/login/">
+                <img src="{% static 'images/medibot_logo.png' %}" width=125>
+            </a>
+            <span class="status">Online</span>
+        </div>
+        <div class="chat-messages-container" id="chat-messages">
+            <!-- Chat messages will appear here -->
+        </div>
+        <div class="input-container">
+            <textarea class="user-input" id="user-input" placeholder="Type your message here"></textarea>
+            <button class="send-btn" id="send-btn">
+                <img src="{% static 'images/send_icon.png' %}" alt="Send Icon">
+            </button>
+        </div>
     </div>
 </div>
 
