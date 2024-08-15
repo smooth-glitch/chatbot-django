@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login
 from .models import Login
-from .forms import LoginModelForm, ContactModelForm, SignupForm
+from .forms import LoginModelForm, ContactModelForm, SignupForm, ForgotPasswordForm
 import pandas as pd
 import json
 import random
@@ -13,10 +13,29 @@ import tensorflow as tf
 from django.views.generic import FormView
 from django.urls import reverse_lazy
 from django.http import HttpResponse
+from django.views.generic import FormView
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.utils.crypto import get_random_string
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from .forms import SetPasswordForm
+from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import get_user_model
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
+
 
 # Load your dataset from a JSON file
 df = pd.read_json('mydb.json')
-
+User = get_user_model()
 # Load the model
 model = tf.keras.models.load_model('trained/chatbot_model.h5')
 
@@ -109,48 +128,123 @@ def find_response(user_input):
 class LoginView(FormView):
     template_name = 'login.html'
     form_class = LoginModelForm
-    success_url = reverse_lazy('home')  # Redirect to home page on successful login
+    success_url = reverse_lazy('home')  # Redirect to the home page on successful login
 
     def form_valid(self, form):
         email = form.cleaned_data['email']
         password = form.cleaned_data['password']
 
-        try:
-            # Check if the email and password match an entry in the Login model
-            user_login = Login.objects.get(email=email, password=password)
-            self.request.session['user_id'] = user_login.id  # Store user ID in session
+        # Authenticate the user
+        user = authenticate(self.request, email=email, password=password)
+
+        if user is not None:
+            auth_login(self.request, user)  # Log the user in
+            messages.success(self.request, "Login successful!")  # Optional: Notify successful login
             return super().form_valid(form)  # Redirect to the success_url (home page)
-        except Login.DoesNotExist:
-            # If credentials are invalid, add an error message
+        else:
             messages.error(self.request, "Invalid username or password.")
-            return redirect('login')  # Redirect back to the login page to prevent resubmission
+            return self.form_invalid(form)  # Stay on the same page
 
     def form_invalid(self, form):
         # Handle the case where the form is invalid
-        return super().form_invalid(form)
+        return self.render_to_response(self.get_context_data(form=form))
+
     
 class SignupView(FormView):
     template_name = 'signup.html'
     form_class = SignupForm
-    success_url = reverse_lazy('login')  # Redirect to the home page after successful signup
+    success_url = reverse_lazy('login')  # Redirect to the login page after successful signup
 
     def form_valid(self, form):
         email = form.cleaned_data['email']
-        
+        password = form.cleaned_data['password']
+
         # Check if the user already exists
-        if Login.objects.filter(email=email).exists():
+        if User.objects.filter(email=email).exists():
             messages.error(self.request, 'A user with this email already exists.')
             return self.form_invalid(form)
         else:
-            # If the user doesn't exist, create a new user
-            form.save()  # Assuming your form's save method handles creating the user
+            # Create a new user with a hashed password
+            user = User(email=email)
+            user.set_password(password)  # This hashes the password
+            user.save()
+
             messages.success(self.request, 'Signup successful! Please log in.')
             return redirect('login')
-            
 
     def form_invalid(self, form):
         # Handle form validation errors
         return self.render_to_response(self.get_context_data(form=form))
+    
+class ForgotPasswordView(FormView):
+    template_name = 'forgot_password.html'
+    form_class = ForgotPasswordForm
+    success_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        email = form.cleaned_data['email']
+        
+        if Login.objects.filter(email=email).exists():
+            user = Login.objects.get(email=email)
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+            # Create password reset URL
+            reset_url = self.request.build_absolute_uri(
+                reverse_lazy('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+            )
+
+            # Render email content
+            subject = 'Password Reset Requested'
+            context = {
+                'reset_url': reset_url,
+                'user': user,
+            }
+            html_content = render_to_string('password_reset_email.html', context)
+            
+            # Send email
+            email_message = EmailMultiAlternatives(
+                subject,
+                html_content,
+                settings.DEFAULT_FROM_EMAIL,
+                [email]
+            )
+            
+            email_message.send()
+
+            messages.success(self.request, 'A link to reset your password has been sent to your email.')
+            return super().form_valid(form)
+        else:
+            messages.error(self.request, 'No user found with this email address.')
+            return self.form_invalid(form)
+        
+    
+
+class PasswordResetConfirmView(FormView):
+    template_name = 'password_reset_confirm.html'
+    form_class = SetPasswordForm
+    success_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        uidb64 = self.kwargs.get('uidb64')
+        token = self.kwargs.get('token')
+        try:
+            uid =force_bytes(urlsafe_base64_decode(uidb64))  # Use force_str instead of force_text
+            user = Login.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, Login.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            # Save the new password
+            user.set_password(form.cleaned_data['new_password'])
+            user.save()
+
+            messages.success(self.request, 'Your password has been successfully reset.')
+            return super().form_valid(form)
+        else:
+            messages.error(self.request, 'The reset link is invalid or has expired.')
+            return self.form_invalid(form)
+
 
 @csrf_exempt
 def contact_view(request):
