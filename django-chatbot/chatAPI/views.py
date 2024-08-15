@@ -31,7 +31,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
-
+from .serializers import *
 
 # Load your dataset from a JSON file
 df = pd.read_json('mydb.json')
@@ -165,7 +165,7 @@ class SignupView(FormView):
             return self.form_invalid(form)
         else:
             # Create a new user with a hashed password
-            user = User(email=email)
+            user = User(username=email, email=email)
             user.set_password(password)  # This hashes the password
             user.save()
 
