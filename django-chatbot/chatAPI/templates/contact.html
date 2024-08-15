@@ -7,7 +7,7 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
-<body>
+<body class="contact-page">
     <header class="header-content">
         <div class="logo">
             <a href="http://127.0.0.1:8000/login/">
@@ -18,7 +18,7 @@
             <ul class="nav-links">
                 <ul class="nav-links">
                     <li><a href="http://127.0.0.1:8000/">Home</a></li>
-                    <li><a href="#chatbot-section">Chatbot</a></li>
+                    <li><a href="http://127.0.0.1:8000/chatbot/">Chatbot</a></li>
                     <li><a href="#about-section">About Us</a></li>
                     <li><a href="http://127.0.0.1:8000/login/">Login</a></li>
             </ul>
@@ -29,16 +29,16 @@
         <h2>Contact Us</h2>
         <form method="POST" action="{% url 'contact' %}">
             {% csrf_token %}
-            <label for="first_name">First Name:</label>
+            <label for="first_name"><b>First Name:</b></label>
             <input type="text" id="first_name" name="first_name" placeholder="First Name" required>
 
-            <label for="last_name">Last Name:</label>
+            <label for="last_name"><b>Last Name:</b></label>
             <input type="text" id="last_name" name="last_name" placeholder="Last Name" required>
 
-            <label for="email">Email:</label>
+            <label for="email"><b>Email:</b></label>
             <input type="email" id="email" name="email" placeholder="Email" required>
 
-            <label for="phone">Phone:</label>
+            <label for="phone"><b>Phone:</b></label>
             <input type="tel" id="phone" name="phone" placeholder="Phone" required>
 
             <input type="submit" value="Submit">

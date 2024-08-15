@@ -7,21 +7,61 @@
     <div class="intro">
         <h1>Welcome to Medi Ai</h1>
         <p>Your personal mental health assistant</p>
-        <a href="{% url 'chatbot' %}" class="main-btn">Try Demo</a> <!-- Updated link to navigate to chatbot page -->
+        <a href="{% url 'chatbot' %}" class="main-btn">Try Demo</a>
+    </div>
+</div>
+
+<!-- Gradient Video Container Section -->
+<div class="gradient-container">
+    <div class="video-container">
+        <div class="bubble">
+            <video autoplay muted loop>
+                <source src="{% static 'videos/video1.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <h3>Mental Health Chatbot</h3>
+            <p>Interact with your mental Health chatbot for your Health check.</p>
+        </div>
+        <div class="bubble">
+            <video autoplay muted loop>
+                <source src="{% static 'videos/video2.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <h3>How to Access</h3>
+            <p>Follow this steps to access the chatbot to check your status.</p>
+        </div>
+        <div class="bubble">
+            <video autoplay muted loop>
+                <source src="{% static 'videos/video3.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <h3>How to Sign up</h3>
+            <p>Follow this steps to sign up with your chatbot to check your status.</p>
+        </div>
+        <div class="bubble">
+            <video autoplay muted loop>
+                <source src="{% static 'videos/video4.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <h3>Check your Score</h3>
+            <p>This video guides you to chack your mental score by our Medi Ai</p>
+        </div>
     </div>
 </div>
 
 <!-- FAQ Section -->
-<div class="faq-section">
+<div class="faq-section = faq-container">
+    <h2 class="section-title">Frequently Asked Questions</h2>
     <div class="faq-container">
-        <div class="faq-question">What is Medi Ai?</div>
+        <div class="faq-question" onclick="toggleFAQ(this)">What is Medi Ai?</div>
         <div class="faq-answer">Medi Ai is an AI-powered chatbot designed to provide mental health support and resources.</div>
 
-        <div class="faq-question">How can I use Medi Ai?</div>
+        <div class="faq-question" onclick="toggleFAQ(this)">How can I use Medi Ai?</div>
         <div class="faq-answer">You can start chatting with Medi Ai by typing your message in the chat window and pressing send.</div>
 
-        <div class="faq-question">Is Medi Ai available 24/7?</div>
+        <div class="faq-question" onclick="toggleFAQ(this)">Is Medi Ai available 24/7?</div>
         <div class="faq-answer">Yes, Medi Ai is available 24/7 to provide support whenever you need it.</div>
     </div>
 </div>
+
 {% endblock %}

@@ -31,7 +31,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
-from .serializers import *
+from django.contrib.auth.models import User
 
 # Load your dataset from a JSON file
 df = pd.read_json('mydb.json')
@@ -135,7 +135,7 @@ class LoginView(FormView):
         password = form.cleaned_data['password']
 
         # Authenticate the user
-        user = authenticate(self.request, email=email, password=password)
+        user = authenticate(self.request, email=email, password=password, username=email)
 
         if user is not None:
             auth_login(self.request, user)  # Log the user in
@@ -219,7 +219,6 @@ class ForgotPasswordView(FormView):
             return self.form_invalid(form)
         
     
-
 class PasswordResetConfirmView(FormView):
     template_name = 'password_reset_confirm.html'
     form_class = SetPasswordForm
@@ -229,13 +228,13 @@ class PasswordResetConfirmView(FormView):
         uidb64 = self.kwargs.get('uidb64')
         token = self.kwargs.get('token')
         try:
-            uid =force_bytes(urlsafe_base64_decode(uidb64))  # Use force_str instead of force_text
-            user = Login.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, Login.DoesNotExist):
+            uid = force_bytes(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
 
         if user is not None and default_token_generator.check_token(user, token):
-            # Save the new password
+            # Save the new password in the auth_user model
             user.set_password(form.cleaned_data['new_password'])
             user.save()
 

@@ -66,6 +66,16 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
     }
 
+    function toggleFAQ(element) {
+        element.classList.toggle('active');
+        const answer = element.nextElementSibling;
+        if (answer.style.maxHeight) {
+            answer.style.maxHeight = null;
+        } else {
+            answer.style.maxHeight = answer.scrollHeight + "px";
+        }
+    }
+
     function getCSRFToken() {
         let cookieValue = null;
         const cookies = document.cookie.split(';');

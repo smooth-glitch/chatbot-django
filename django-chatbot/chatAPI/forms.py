@@ -1,5 +1,5 @@
 from django import forms
-from .models import Login, Contact
+from .models import *
 
 class LoginModelForm(forms.ModelForm):
     class Meta:
@@ -11,7 +11,6 @@ class LoginModelForm(forms.ModelForm):
 
 class ContactModelForm(forms.ModelForm):
     class Meta:
-        model = Contact
         fields = ['first_name', 'last_name', 'email', 'phone']
         widgets = {
             'first_name': forms.TextInput(attrs={'placeholder': 'First Name'}),
