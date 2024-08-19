@@ -4,7 +4,6 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import User
-
 class LoginManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -54,4 +53,3 @@ class Contact(models.Model):
     def __str__(self):
         return f'{self.user.username}: {self.message[:20]}'
         """
-

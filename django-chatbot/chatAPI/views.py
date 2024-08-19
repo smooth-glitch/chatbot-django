@@ -33,7 +33,6 @@ def preprocess_input(input_text):
     return input_text.lower().strip()
 
 @csrf_exempt
-@api_view(['POST'])
 def predict(request):
     if request.method == 'POST':
         try:
@@ -112,7 +111,7 @@ def find_response(user_input):
 
     if matched_responses:
         return random.choice(matched_responses)
-    return "Sorry, I can't help with that. Can you try asking something else?"
+    return "Sorry, I can't help with that. Can you try asking something else?"
 
 @api_view(['GET', 'POST'])
 def login_view(request):
@@ -259,11 +258,12 @@ def contact(request):
     return render(request, 'contact.html')
 
 @csrf_exempt
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def chat(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
+            # Use request.data provided by DRF to parse JSON data
+            data = request.data
             user_input = data.get('message', '')
 
             # Debugging: Log the user input
@@ -280,7 +280,7 @@ def chat(request):
             print(f"Error in chat view: {str(e)}")
             return JsonResponse({'error': str(e)}, status=400)
     else:
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+        return render(request, 'chatbot.html')
 
 def chatbot(request):
     return render(request, 'chatbot.html')
