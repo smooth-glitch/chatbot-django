@@ -1,37 +1,25 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login
-from .models import Login
-from .forms import LoginModelForm, ContactModelForm, SignupForm, ForgotPasswordForm
+from django.urls import reverse_lazy
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth import get_user_model
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.conf import settings
+from .forms import (
+    LoginModelForm, ContactModelForm, SignupForm, 
+    ForgotPasswordForm, SetPasswordForm
+)
 import pandas as pd
 import json
 import random
 import tensorflow as tf
-from django.views.generic import FormView
-from django.urls import reverse_lazy
-from django.http import HttpResponse
-from django.views.generic import FormView
-from django.urls import reverse_lazy
-from django.contrib import messages
-from django.core.mail import send_mail
-from django.utils.crypto import get_random_string
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_decode
-from .forms import SetPasswordForm
-from django.contrib.auth import authenticate, login as auth_login
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth import get_user_model
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-from django.conf import settings
-from django.contrib.auth.models import User
+from rest_framework.decorators import api_view
 
 # Load your dataset from a JSON file
 df = pd.read_json('mydb.json')
@@ -45,6 +33,7 @@ def preprocess_input(input_text):
     return input_text.lower().strip()
 
 @csrf_exempt
+@api_view(['POST'])
 def predict(request):
     if request.method == 'POST':
         try:
@@ -125,127 +114,129 @@ def find_response(user_input):
         return random.choice(matched_responses)
     return "Sorry, I can't help with that. Can you try asking something else?"
 
-class LoginView(FormView):
-    template_name = 'login.html'
-    form_class = LoginModelForm
-    success_url = reverse_lazy('home')  # Redirect to the home page on successful login
+@api_view(['GET', 'POST'])
+def login_view(request):
+    if request.method == 'POST':
+        form = LoginModelForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
 
-    def form_valid(self, form):
-        email = form.cleaned_data['email']
-        password = form.cleaned_data['password']
+            # Authenticate the user
+            user = authenticate(request, password=password, username=email)
 
-        # Authenticate the user
-        user = authenticate(self.request, email=email, password=password, username=email)
+            if user is not None:
+                auth_login(request, user) # Log the user in
+                messages.success(request, "Login successful!")  
+                return redirect(reverse_lazy('home'))  
+            else:
+                messages.error(request, "Invalid username or password.")
+                # Fall through to re-render the form with errors
 
-        if user is not None:
-            auth_login(self.request, user)  # Log the user in
-            messages.success(self.request, "Login successful!")  # Optional: Notify successful login
-            return super().form_valid(form)  # Redirect to the success_url (home page)
-        else:
-            messages.error(self.request, "Invalid username or password.")
-            return self.form_invalid(form)  # Stay on the same page
+        # If form is invalid or authentication failed, re-render the template with form errors
+        return render(request, 'login.html', {'form': form})
 
-    def form_invalid(self, form):
-        # Handle the case where the form is invalid
-        return self.render_to_response(self.get_context_data(form=form))
+    else:  # GET request
+        form = LoginModelForm()
+        return render(request, 'login.html', {'form': form})
 
     
-class SignupView(FormView):
-    template_name = 'signup.html'
-    form_class = SignupForm
-    success_url = reverse_lazy('login')  # Redirect to the login page after successful signup
-
-    def form_valid(self, form):
-        email = form.cleaned_data['email']
-        password = form.cleaned_data['password']
-
-        # Check if the user already exists
-        if User.objects.filter(email=email).exists():
-            messages.error(self.request, 'A user with this email already exists.')
-            return self.form_invalid(form)
-        else:
-            # Create a new user with a hashed password
-            user = User(username=email, email=email)
-            user.set_password(password)  # This hashes the password
-            user.save()
-
-            messages.success(self.request, 'Signup successful! Please log in.')
-            return redirect('login')
-
-    def form_invalid(self, form):
-        # Handle form validation errors
-        return self.render_to_response(self.get_context_data(form=form))
+@api_view(['GET', 'POST'])
+def signup_view(request):
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            if User.objects.filter(email=email).exists():
+                messages.error(request, 'A user with this email already exists.')
+                return request.form_invalid(form)
+            else:
+                user = User(username=email, email=email)
+                user.set_password(password)
+                user.save()
+                messages.success(request, 'Signup successful! Please log in.')
+                return redirect('login')
+    else:
+        form = SignupForm()
+        return render(request, 'signup.html', {'form' : form})
     
-class ForgotPasswordView(FormView):
-    template_name = 'forgot_password.html'
-    form_class = ForgotPasswordForm
-    success_url = reverse_lazy('login')
+@api_view(['GET', 'POST'])
+def forgot_password_view(request):
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
 
-    def form_valid(self, form):
-        email = form.cleaned_data['email']
+            if User.objects.filter(email=email).exists():
+                user = User.objects.get(email=email)
+                token = default_token_generator.make_token(user)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+                # Create password reset URL
+                reset_url = request.build_absolute_uri(
+                    reverse_lazy('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+                )
+
+                # Render email content
+                subject = 'Password Reset Requested'
+                context = {
+                    'reset_url': reset_url,
+                    'user': user,
+                }
+                html_content = render_to_string('password_reset_email.html', context)
+                
+                # Send email
+                email_message = EmailMultiAlternatives(
+                    subject,
+                    html_content,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email]
+                )
+                
+                email_message.send()
+
+                messages.success(request, 'A link to reset your password has been sent to your email.')
+                return redirect('login')  # Redirect to a success page or home after successful submission
+            else:
+                messages.error(request, 'No user found with this email address.')
+                
+        # If the form is invalid or no user is found, re-render the form with errors
+        return render(request, 'forgot_password.html', {'form': form})
+    
+    else:  # GET request
+        form = ForgotPasswordForm()
+        return render(request, 'forgot_password.html', {'form': form})
         
-        if User.objects.filter(email=email).exists():
-            user = User.objects.get(email=email)
-            token = default_token_generator.make_token(user)
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-
-            # Create password reset URL
-            reset_url = self.request.build_absolute_uri(
-                reverse_lazy('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
-            )
-
-            # Render email content
-            subject = 'Password Reset Requested'
-            context = {
-                'reset_url': reset_url,
-                'user': user,
-            }
-            html_content = render_to_string('password_reset_email.html', context)
-            
-            # Send email
-            email_message = EmailMultiAlternatives(
-                subject,
-                html_content,
-                settings.DEFAULT_FROM_EMAIL,
-                [email]
-            )
-            
-            email_message.send()
-
-            messages.success(self.request, 'A link to reset your password has been sent to your email.')
-            return super().form_valid(form)
-        else:
-            messages.error(self.request, 'No user found with this email address.')
-            return self.form_invalid(form)
-        
     
-class PasswordResetConfirmView(FormView):
-    template_name = 'password_reset_confirm.html'
-    form_class = SetPasswordForm
-    success_url = reverse_lazy('login')
+def password_reset_view(request, uidb64=None, token=None):
+    if request.method == 'POST':
+        form = SetPasswordForm(request.POST)
+        if form.is_valid():
+            try:
+                uid = force_bytes(urlsafe_base64_decode(uidb64))
+                user = User.objects.get(pk=uid)
+            except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+                user = None
 
-    def form_valid(self, form):
-        uidb64 = self.kwargs.get('uidb64')
-        token = self.kwargs.get('token')
-        try:
-            uid = force_bytes(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            user = None
+            if user is not None and default_token_generator.check_token(user, token):
+                # Save the new password in the auth_user model
+                user.set_password(form.cleaned_data['new_password'])
+                user.save()
 
-        if user is not None and default_token_generator.check_token(user, token):
-            # Save the new password in the auth_user model
-            user.set_password(form.cleaned_data['new_password'])
-            user.save()
-
-            messages.success(self.request, 'Your password has been successfully reset.')
-            return super().form_valid(form)
+                messages.success(request, 'Your password has been successfully reset.')
+                return redirect('login')  # Redirect to the home page or login page
+            else:
+                messages.error(request, 'The reset link is invalid or has expired.')
+                return redirect('password_reset_failed')  # Redirect to an error page
         else:
-            messages.error(self.request, 'The reset link is invalid or has expired.')
-            return self.form_invalid(form)
+            # If the form is invalid, re-render the template with form errors
+            return render(request, 'password_reset_confirm.html', {'form': form})
+    else:  # GET request
+        form = SetPasswordForm()
+        return render(request, 'password_reset_confirm.html', {'form': form})
 
-
-@csrf_exempt
+@api_view(['GET', 'POST'])
 def contact_view(request):
     if request.method == 'POST':
         form = ContactModelForm(request.POST)
@@ -268,6 +259,7 @@ def contact(request):
     return render(request, 'contact.html')
 
 @csrf_exempt
+@api_view(['POST'])
 def chat(request):
     if request.method == 'POST':
         try:
