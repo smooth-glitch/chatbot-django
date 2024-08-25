@@ -1,13 +1,8 @@
 from django import forms
 from .models import *
+from django.contrib.auth.forms import UserCreationForm
 
-class LoginModelForm(forms.ModelForm):
-    class Meta:
-        model = Login
-        fields = ['email', 'password']
-        widgets = {
-            'password': forms.PasswordInput(),  # Ensure the password field is rendered as a password input
-        }
+
 
 class ContactModelForm(forms.ModelForm):
     class Meta:
@@ -20,22 +15,16 @@ class ContactModelForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'placeholder': 'Phone'}),
         }
 
+class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
 
-class SignupForm(forms.ModelForm):
     class Meta:
-        model = Login
-        fields = ['email', 'password', 'phone']
+        model = User
+        fields = ("username", "email", "password1", "password2")
 
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get("password")
-        
-        return cleaned_data
-    
     def save(self, commit=True):
-        # Override the save method to handle user creation
-        user = super().save(commit=False)
-        user.password = self.cleaned_data["password"]  # Assign the cleaned password
+        user = super(CustomUserCreationForm, self).save(commit=False)
+        user.email = self.cleaned_data["email"]
         if commit:
             user.save()
         return user
