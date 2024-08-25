@@ -2,24 +2,31 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import get_user_model
 from django.urls import reverse_lazy
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth import get_user_model
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.conf import settings
-from .forms import (
-    LoginModelForm, ContactModelForm, SignupForm, 
-    ForgotPasswordForm, SetPasswordForm
-)
+from django.contrib.auth.decorators import login_required
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework import status
 import pandas as pd
 import json
 import random
 import tensorflow as tf
-from rest_framework.decorators import api_view
+
+from .forms import (
+    CustomUserCreationForm, ContactModelForm, 
+    ForgotPasswordForm, SetPasswordForm
+)
+from .models import ChatHistory
+
 
 # Load your dataset from a JSON file
 df = pd.read_json('mydb.json')
@@ -49,6 +56,13 @@ def predict(request):
 
             # Get the authenticated user or set to None
             user = request.user if request.user.is_authenticated else None
+
+            # Save the user's message and chatbot response to the database
+            ChatHistory.objects.create(
+                user=user,
+                user_message=input_text,
+                bot_response=response
+            )
 
             # Return the response
             return JsonResponse({'response': response}, status=200)
@@ -113,52 +127,53 @@ def find_response(user_input):
         return random.choice(matched_responses)
     return "Sorry, I can't help with that. Can you try asking something else?"
 
-@api_view(['GET', 'POST'])
+# User Login View
 def login_view(request):
     if request.method == 'POST':
-        form = LoginModelForm(request.POST)
+        form = AuthenticationForm(data=request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
-
-            # Authenticate the user
-            user = authenticate(request, password=password, username=email)
-
-            if user is not None:
-                auth_login(request, user) # Log the user in
-                messages.success(request, "Login successful!")  
-                return redirect(reverse_lazy('home'))  
-            else:
-                messages.error(request, "Invalid username or password.")
-                # Fall through to re-render the form with errors
-
-        # If form is invalid or authentication failed, re-render the template with form errors
-        return render(request, 'login.html', {'form': form})
-
-    else:  # GET request
-        form = LoginModelForm()
-        return render(request, 'login.html', {'form': form})
-
+            user = form.get_user()
+            login(request, user)
+            messages.success(request, "Logged in successfully!")  # Feedback message
+            return redirect('chatbot')  # Redirect to the dashboard or another page
+        else:
+            # Debugging: Print form errors if the form is not valid
+            print(form.errors)
+            messages.error(request, "Invalid credentials. Please try again.")
+    else:
+        form = AuthenticationForm()
     
-@api_view(['GET', 'POST'])
+    # Include current_page in the context
+    return render(request, 'login.html', {'form': form, 'current_page': 'login'})
+
+@api_view(['GET'])
+def logout_view(request):
+    if request.method == 'GET':
+        logout(request)
+        # Include current_page in the context
+        return render(request, 'logout.html', {'current_page': 'logout'})
+    else:
+        return Response("Not authorized", status=status.HTTP_401_UNAUTHORIZED)
+
+
 def signup_view(request):
     if request.method == 'POST':
-        form = SignupForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
-            if User.objects.filter(email=email).exists():
-                messages.error(request, 'A user with this email already exists.')
-                return request.form_invalid(form)
-            else:
-                user = User(username=email, email=email)
-                user.set_password(password)
-                user.save()
-                messages.success(request, 'Signup successful! Please log in.')
-                return redirect('login')
+            user = form.save()
+            login(request, user)  # Log the user in after signing up
+            messages.success(request, "Account created successfully!")  # Feedback message
+            return redirect('login')  # Redirect to the dashboard or another page
+        else:
+            # Debugging: Print form errors if the form is not valid
+            print(form.errors)
+            messages.error(request, "There was an error creating your account. Please try again.")
     else:
-        form = SignupForm()
-        return render(request, 'signup.html', {'form' : form})
+        form = CustomUserCreationForm()
+
+    # Include current_page in the context
+    return render(request, 'signup.html', {'form': form, 'current_page': 'signup'})
+
     
 @api_view(['GET', 'POST'])
 def forgot_password_view(request):
@@ -258,29 +273,44 @@ def contact(request):
     return render(request, 'contact.html')
 
 @csrf_exempt
+@login_required
 @api_view(['POST', 'GET'])
 def chat(request):
     if request.method == 'POST':
-        try:
-            # Use request.data provided by DRF to parse JSON data
-            data = request.data
-            user_input = data.get('message', '')
+        if request.user.is_authenticated:
+            try:
+                # Use request.data provided by DRF to parse JSON data
+                data = request.data
+                user_input = data.get('message', '')
 
-            # Debugging: Log the user input
-            print(f"User input received: {user_input}")
+                # Debugging: Log the user input
+                print(f"User input received: {user_input}")
 
-            response = find_response(user_input)
+                response = find_response(user_input)
 
-            # Debugging: Log the generated response
-            print(f"Response generated: {response}")
+                # Debugging: Log the generated response
+                print(f"Response generated: {response}")
 
-            return JsonResponse({'response': response})
-        except Exception as e:
-            # Debugging: Log the error
-            print(f"Error in chat view: {str(e)}")
-            return JsonResponse({'error': str(e)}, status=400)
+                # Get the authenticated user or set to None
+                user = request.user if request.user.is_authenticated else None
+
+                # Save the user's message and chatbot response to the database
+                ChatHistory.objects.create(
+                    user=user,
+                    user_message=user_input,
+                    bot_response=response
+                )
+
+                return JsonResponse({'response': response})
+            except Exception as e:
+                # Debugging: Log the error
+                print(f"Error in chat view: {str(e)}")
+                return JsonResponse({'error': str(e)}, status=400)
+        else:
+            return redirect('login')
     else:
-        return render(request, 'chatbot.html')
+        if request.user.is_authenticated:
+            return render(request, 'chatbot.html')
+        else:
+            return redirect('login')
 
-def chatbot(request):
-    return render(request, 'chatbot.html')
