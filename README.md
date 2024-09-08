@@ -222,5 +222,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 For any questions or suggestions, feel free to reach out:
 
-- **Email**: youremail@example.com
-- **GitHub**: [@your-username](https://github.com/your-username)
+- **Email**: arjunsridhar445@gmail.com
+- **GitHub**: [@smooth-glitch](https://github.com/smooth-glitch)
+
+### 💰 You can help me by Donating
+  [![BuyMeACoffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/smoothglitch) 
