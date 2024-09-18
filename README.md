@@ -232,8 +232,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 For any questions or suggestions, feel free to reach out:
 
-- **Email**: arjunsridhar445@gmail.com
-- **GitHub**: [@smooth-glitch](https://github.com/smooth-glitch)
+- **Email**: arjunsridhar445@gmail.com or pradeepandigital@gmil.com
+- **GitHub**: [@smooth-glitch](https://github.com/smooth-glitch) or [@pradeepannagarasu](https://github.com/pradeepannagarasu)
 
 ### 💰 Support My Work
 
