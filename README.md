@@ -235,8 +235,8 @@ For any questions or suggestions, feel free to reach out:
 - **Email**: arjunsridhar445@gmail.com or pradeepandigital@gmail.com
 - **GitHub**: [@smooth-glitch](https://github.com/smooth-glitch) or [@pradeepannagarasu](https://github.com/pradeepannagarasu)
 
-### 💰 Support My Work
+### 💰 Support Our Work
 
-If you like this project, you can support me by buying a coffee! ☕
+If you like this project, you can support us by buying a coffee! ☕
 
 [![BuyMeACoffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/smoothglitch)
