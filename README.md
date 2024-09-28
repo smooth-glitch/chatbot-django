@@ -1,7 +1,3 @@
-Here's a polished and professional version of your GitHub README file, complete with emojis to make it visually appealing:
-
----
-
 # Django Chatbot with Keras and TensorFlow 🤖
 
 ![Chatbot](https://via.placeholder.com/728x90.png)
